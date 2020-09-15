@@ -6,6 +6,7 @@ export var jump_speed = 2300
 
 
 const GRAVITY = 100
+const WORLD_LIMIT = 4000 #Kill Z
 const UP = Vector2(0,-1)
 
 signal animate
@@ -15,10 +16,6 @@ func _physics_process(delta):
 	move()
 	jump()
 	move_and_slide(motion, UP)
-	print("is on wall: %d", is_on_wall())
-	print("is on floor: %d", is_on_floor())
-	print("motion.y = %f", motion.y)
-	print("motion.x = %f", motion.x)
 
 
 func _process(delta):
@@ -26,10 +23,13 @@ func _process(delta):
 
 
 func apply_gravity():
+	if position.y > WORLD_LIMIT: #Kill Z
+		end_game()
 	if is_on_floor() or is_on_ceiling():
 		motion.y = GRAVITY
 	else:
 		motion.y += GRAVITY
+	clamp(motion.y, -GRAVITY * 3, GRAVITY * 3)
 
 
 
@@ -49,3 +49,7 @@ func move():
 
 func animate():
 	emit_signal("animate",motion)
+
+
+func end_game():
+	get_tree().change_scene("res://Levels/GameOver.tscn")
